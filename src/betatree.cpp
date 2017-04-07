@@ -91,7 +91,7 @@ int main(int argc, char **argv)
   const string aperture = "2";
 
   double zcluster = atof(argv[1]);
-  assert(zcluster>0); assert(zcluster<=1);
+  assert(zcluster>0); assert(zcluster<1);
   int iz = int(zcluster*10000.+0.1);
  
   string outputfile=argv[2];
@@ -250,10 +250,8 @@ if(maxdepth<=24.7) {
                         (*t)[j]->doublePropertyValue("DdsDs"+ZeroPadNumber(iz)+"_mean"); 
                          // density*mean value they do have, used for weighting
          
-         if((*t)[j]->intPropertyValue("deadleaf")==0) {
-           nte_bmall_bmtr += wmall*bmtr;
-           nte_bmall      += wmall;
-         }
+         nte_bmall_bmtr += wmall*bmtr;
+         nte_bmall      += wmall;
          
          (*t)[j]->setDoubleProperty("beta_noD"+ZeroPadNumber(f+1,1),bmtr);
        }
@@ -316,16 +314,17 @@ if(maxdepth<=24.7) {
       int nobj = (*t)[i]->intPropertyValue("nobj");
 
       if(nobj<1) continue;
+      
 	  if(maxdepth<24.7) {
           betamean_C2015 += nobj*(*t)[i]->doublePropertyValue("DdsDs"+ZeroPadNumber(iz)+"_mean_C2015");
           betamean_D2    += nobj*(*t)[i]->doublePropertyValue("DdsDs"+ZeroPadNumber(iz)+"_mean_D2");
 	  }
+	  
       double beta = (*t)[i]->doublePropertyValue("DdsDs"+ZeroPadNumber(iz)+"_mean");
       betamean_DEEP  += nobj*beta;
       nsum += nobj;
   
-      leafBin((*t)[i], ref, criteria, 
-	      "z_phot", pzmin, pzmax, dpz, pz, nobj*beta);
+      leafBin((*t)[i], ref, criteria, "z_phot", pzmin, pzmax, dpz, pz, nobj*beta);
   }
   
   betamean_C2015 /= nsum;
