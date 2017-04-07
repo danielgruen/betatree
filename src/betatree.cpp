@@ -107,14 +107,31 @@ int main(int argc, char **argv)
   
   for(int i=4; i<argc; i++) {
     filters[(i-4)/2+1] = argv[i];
-    assert(filters[(i-4)/2+1]=="u" || 
-           filters[(i-4)/2+1]=="g" || 
-           filters[(i-4)/2+1]=="r" || 
-           filters[(i-4)/2+1]=="i" || 
-           filters[(i-4)/2+1]=="y" || 
-           filters[(i-4)/2+1]=="z" ); 
     i++;
     limits.push_back(atof(argv[i]));
+    // S/N=10 at least at u=26, g=26.5, r=26.5, i=26, y=26, z=25.5, J=19, H=19, K=19
+    int n=(i-5)/2+1;
+    switch(filters[n][0]) {
+      case 'u':
+      case 'y':
+        assert(limits[n]<=26.);
+        break;
+      case 'g':
+      case 'r':
+        assert(limits[n]<=26.5);
+        break;
+      case 'z':
+        assert(limits[n]<=25.5);
+        break;
+      case 'J':
+      case 'H':
+      case 'K':
+        assert(limits[n]<=19);
+    	break;
+      default:
+        cerr << "unknown filter band " << filters[n] << ". exiting" << endl;
+        return 1;
+    }
   }
 
  
@@ -136,6 +153,7 @@ int main(int argc, char **argv)
 
   }
   ObjectCollection *ref    = read_refcat_prepared(bands, ZeroPadNumber(iz));
+  ref = ref->filter(Filter(filters[0],brightcut,maxdepth));
 
   if(ref->prototype->doubleVkey("DdsDs"+ZeroPadNumber(iz))<0) { // create beta-columns if missing
     string zstring[] = {ZeroPadNumber(iz)};
@@ -280,7 +298,10 @@ if(maxdepth<=24.7) {
   cerr << "(6) writing output" << endl;
 
   // first extension: general information about the tree
-  ObjectCollection *fields = new ObjectCollection();
+  ObjectPrototype *prototype = new ObjectPrototype;
+  ObjectCollection *fields = new ObjectCollection(prototype);
+  Object *o = new Object(prototype);
+  fields->appendObject(o);
   fields->createIntPropertyIfNecessary("BETATREE_VERSION",3,true);
   fields->createIntPropertyIfNecessary("BETATREE_NMIN",nmin,true);
   fields->createIntPropertyIfNecessary("BETATREE_NLEAVES",t->size(),true);
@@ -334,6 +355,9 @@ if(maxdepth<=24.7) {
   fields->createDoublePropertyIfNecessary("BETATREE_BETAMEAN_D2",betamean_D2,true);
   fields->createDoublePropertyIfNecessary("BETATREE_BETAMEAN_DEEP",betamean_DEEP,true); 
   
+  fields->writeToFITS(outputfile, fields->prototype->doublePropertyName, fields->prototype->intPropertyName, "TREE");
+  t->writeToFITS(outputfile, t->prototype->doublePropertyName, t->prototype->intPropertyName, "LEAVES");
+
   
   return 0;
 }

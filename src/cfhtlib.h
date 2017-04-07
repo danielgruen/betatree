@@ -10,8 +10,6 @@ namespace cfhtlib {
 
 const string refcatpath=REFCATPATH;
 
-const string numbers[]={"0",  "1",  "2",  "3",  "4",  "5",  "6",  "7",  "8",  "9", 
-                       "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"};
 // transformation functions
 
 double offset=0.;
@@ -115,13 +113,7 @@ ObjectCollection* read_refcat_prepared(vector<string> bands,
       photozcolumns.push_back(bands[i]);
     else
       photozcolumns.push_back(bands[i]+bands[0]);
-    photozcolumns.push_back(bands[i]+"err");
   }
-  
-  photozcolumns.push_back("DdsDs"+zstring);
-  photozcolumns.push_back("DdsDssq"+zstring);
-  photozcolumns.push_back("background"+zstring);
-  photozcolumns.push_back("cluster"+zstring);
   
   for(int i=0; i<extracolumns.size(); i++)
   {
@@ -373,224 +365,6 @@ ObjectCollection* read_refcat_C2015(vector<string> bands, string aperture="2") {
 
 
 
-ObjectCollection* read_refcat(vector<string> bands, string aperture="2", string midfix="") {
-// bands:    filter bands to be used for colors later, first one indicates detection bands
-// aperture: aperture to be used
-    
-  vector<string> refbands; vector<double> limits;
-
-  const double gain1[] = {1026., 7095., 6919., 6807., 1882., 2148., 1116., 2379., 2134.};
-  const double gain2[] = {2288., 5244., 5418., 5310., 2926., 1455.,  193.,  377.,  175.};
-  const double gain3[] = { 972., 5830., 5759., 6359., 2445., 1824., 1517., 1532., 1378.};
-  const double gain4[] = { 899., 6999., 6329., 6378., 1500., 1805., 1577., 2413., 1702.};  
-  refbands.push_back("u"); limits.push_back(26.5);
-  refbands.push_back("g"); limits.push_back(26.5);
-  refbands.push_back("r"); limits.push_back(26.5);
-  refbands.push_back("i"); limits.push_back(26.);
-  refbands.push_back("y"); limits.push_back(25.5);
-  refbands.push_back("z"); limits.push_back(25.5);
-  refbands.push_back("J"); limits.push_back(20.);
-  refbands.push_back("H"); limits.push_back(19.5);
-  refbands.push_back("K"); limits.push_back(19.);
-  
-  vector<string> photozcolumns;
-  photozcolumns.push_back("flag_photoz");
-  photozcolumns.push_back("z_phot");
-  photozcolumns.push_back("SED");
-  photozcolumns.push_back("MASK");
-  photozcolumns.push_back("MASK_IR");
-  photozcolumns.push_back("MAG_AUTO");    // i band in CFHT deep
-  photozcolumns.push_back("FLUX_RADIUS");
-  photozcolumns.push_back("NPIX");
-  for(int i=0; i<refbands.size(); i++)
-  {
-    photozcolumns.push_back("MAG_APER_"+refbands[i]+aperture);
-    photozcolumns.push_back("FLUX_APER_"+refbands[i]+aperture);
-    photozcolumns.push_back("MAGERR_APER_"+refbands[i]+aperture);
-    photozcolumns.push_back("FLUXERR_APER_"+refbands[i]+aperture);
-  }
-  photozcolumns.push_back("Xpos"); // for matching later
-  photozcolumns.push_back("Ypos");
-  photozcolumns.push_back("ALPHA_J2000"); 
-  photozcolumns.push_back("DELTA_J2000"); 
- 
-  vector<Filter> goodzfilter;
-
-  cerr << "# reading CFHT DEEP catalogs one by one and applying photometric offsets" << endl;
-
-  
-  ObjectCollection *refD1 = new ObjectCollection(refcatpath+"D1."+bands[0]+midfix+".photoz.cat", "OBJECTS", photozcolumns); // reference catalog, no size cut
-
-  double extinction_i=0.045;
-  offset= -0.07-extinction_i;
-  refD1->transformColumn("MAG_APER_u"+aperture,mag_offset);
-  offset= -0.11-extinction_i;
-  refD1->transformColumn("MAG_APER_g"+aperture,mag_offset);
-  offset= -0.07-extinction_i;
-  refD1->transformColumn("MAG_APER_r"+aperture,mag_offset);
-  offset=  0.00-extinction_i;
-  refD1->transformColumn("MAG_APER_i"+aperture,mag_offset);
-  if(bands[0]=="i") refD1->transformColumn("MAG_AUTO",mag_offset);
-  offset= -0.01-extinction_i;
-  refD1->transformColumn("MAG_APER_y"+aperture,mag_offset);
-  if(bands[0]=="y") refD1->transformColumn("MAG_AUTO",mag_offset);
-  offset= -0.02-extinction_i;
-  refD1->transformColumn("MAG_APER_z"+aperture,mag_offset);
-  offset=  0.17-extinction_i;
-  refD1->transformColumn("MAG_APER_J"+aperture,mag_offset);
-  offset=  0.28-extinction_i;
-  refD1->transformColumn("MAG_APER_H"+aperture,mag_offset);
-  offset=  0.25-extinction_i;
-  refD1->transformColumn("MAG_APER_K"+aperture,mag_offset);
-  
-  seeing_flux_radius_pix=2.27;
-  refD1->transformColumnNew("FLUX_RADIUS_PRESEEING",flux_radius_preseeing,"FLUX_RADIUS");
-  
-  ObjectCollection *ref = filter_fluxerr(refD1,aperture,refbands,limits,gain1);
-  ref->createIntPropertyIfNecessary("FIELD",1);
-  cerr << "# " << ref->size() << " objects left in D1 after fluxerr clipping" << endl;
-  
-  
-  
-
-  ObjectCollection *refD2 = new ObjectCollection(refcatpath+"D2."+bands[0]+midfix+".photoz.cat", "OBJECTS", photozcolumns);
-  extinction_i=0.032;
-    
-  offset= -0.07-extinction_i;
-  refD2->transformColumn("MAG_APER_u"+aperture,mag_offset);
-  offset= -0.06-extinction_i;
-  refD2->transformColumn("MAG_APER_g"+aperture,mag_offset);
-  offset= -0.04-extinction_i;
-  refD2->transformColumn("MAG_APER_r"+aperture,mag_offset);
-  offset=  0.00-extinction_i;
-  refD2->transformColumn("MAG_APER_i"+aperture,mag_offset);
-  if(bands[0]=="i") refD2->transformColumn("MAG_AUTO",mag_offset);
-  offset=  0.01-extinction_i;
-  refD2->transformColumn("MAG_APER_y"+aperture,mag_offset);
-  if(bands[0]=="y") refD2->transformColumn("MAG_AUTO",mag_offset);
-  offset=  0.00-extinction_i;
-  refD2->transformColumn("MAG_APER_z"+aperture,mag_offset);
-  offset=  0.16-extinction_i;
-  refD2->transformColumn("MAG_APER_J"+aperture,mag_offset);
-  offset=  0.23-extinction_i;
-  refD2->transformColumn("MAG_APER_H"+aperture,mag_offset);
-  offset=  0.25-extinction_i;
-  refD2->transformColumn("MAG_APER_K"+aperture,mag_offset);
-    
-  seeing_flux_radius_pix=2.37;
-  refD2->transformColumnNew("FLUX_RADIUS_PRESEEING",flux_radius_preseeing,"FLUX_RADIUS");
-  ObjectCollection *refD2f = filter_fluxerr(refD2,aperture,refbands,limits,gain2);
-  refD2f->createIntPropertyIfNecessary("FIELD",2);
-  ref->appendCollectionDeep(refD2f);
-  
-  cerr << "# " << refD2f->size() << " of " << refD2->size() << " objects left in D2 after fluxerr clipping" << endl;
-
-  delete refD2f; delete refD2;
-  
-  
-  
-  
-  
-  ObjectCollection *refD3 = new ObjectCollection(refcatpath+"D3."+bands[0]+midfix+".photoz.cat", "OBJECTS", photozcolumns);
-  extinction_i=0.014;
-  
-  offset= -0.03-extinction_i;
-  refD3->transformColumn("MAG_APER_u"+aperture,mag_offset);
-  offset= -0.05-extinction_i;
-  refD3->transformColumn("MAG_APER_g"+aperture,mag_offset);
-  offset= -0.04-extinction_i;
-  refD3->transformColumn("MAG_APER_r"+aperture,mag_offset);
-  offset=  0.00-extinction_i;
-  refD3->transformColumn("MAG_APER_i"+aperture,mag_offset);
-  if(bands[0]=="i") refD3->transformColumn("MAG_AUTO",mag_offset);
-  offset=  0.00-extinction_i;
-  refD3->transformColumn("MAG_APER_y"+aperture,mag_offset);
-  if(bands[0]=="y") refD3->transformColumn("MAG_AUTO",mag_offset);
-  offset=  0.01-extinction_i;
-  refD3->transformColumn("MAG_APER_z"+aperture,mag_offset);
-  offset=  0.18-extinction_i;
-  refD3->transformColumn("MAG_APER_J"+aperture,mag_offset);
-  offset=  0.26-extinction_i;
-  refD3->transformColumn("MAG_APER_H"+aperture,mag_offset);
-  offset=  0.31-extinction_i;
-  refD3->transformColumn("MAG_APER_K"+aperture,mag_offset);
-  
-  seeing_flux_radius_pix=2.37;
-  refD3->transformColumnNew("FLUX_RADIUS_PRESEEING",flux_radius_preseeing,"FLUX_RADIUS");
-
-  ObjectCollection *refD3f = filter_fluxerr(refD3,aperture,refbands,limits,gain3);
-  refD3f->createIntPropertyIfNecessary("FIELD",3);
-  ref->appendCollectionDeep(refD3f);
-  
-  cerr << "# " << refD3f->size() << " of " << refD3->size() << " objects left in D3 after fluxerr clipping" << endl;
-
-  delete refD3f; delete refD3;
-  
-  
-  ObjectCollection *refD4 = new ObjectCollection(refcatpath+"D4."+bands[0]+midfix+".photoz.cat", "OBJECTS", photozcolumns);
-  extinction_i=0.042;
-  
-  offset= -0.02-extinction_i;
-  refD4->transformColumn("MAG_APER_u"+aperture,mag_offset);
-  offset= -0.09-extinction_i;
-  refD4->transformColumn("MAG_APER_g"+aperture,mag_offset);
-  offset= -0.05-extinction_i;
-  refD4->transformColumn("MAG_APER_r"+aperture,mag_offset);
-  offset=  0.00-extinction_i;
-  refD4->transformColumn("MAG_APER_i"+aperture,mag_offset);
-  if(bands[0]=="i") refD4->transformColumn("MAG_AUTO",mag_offset);
-  offset= -0.02-extinction_i;
-  refD4->transformColumn("MAG_APER_y"+aperture,mag_offset);
-  if(bands[0]=="y") refD4->transformColumn("MAG_AUTO",mag_offset);
-  offset= -0.01-extinction_i; 
-  refD4->transformColumn("MAG_APER_z"+aperture,mag_offset);
-  offset=  0.16-extinction_i;
-  refD4->transformColumn("MAG_APER_J"+aperture,mag_offset);
-  offset=  0.27-extinction_i;
-  refD4->transformColumn("MAG_APER_H"+aperture,mag_offset);
-  offset=  0.24-extinction_i;
-  refD4->transformColumn("MAG_APER_K"+aperture,mag_offset);
-  
-  seeing_flux_radius_pix=2.37;
-  refD4->transformColumnNew("FLUX_RADIUS_PRESEEING",flux_radius_preseeing,"FLUX_RADIUS");  
-
-  ObjectCollection *refD4f = filter_fluxerr(refD4,aperture,refbands,limits,gain4);
-  refD4f->createIntPropertyIfNecessary("FIELD",4);
-  ref->appendCollectionDeep(refD4f);
-  
-  
-  cerr << "# " << refD4f->size() << " of " << refD4->size() << " objects left in D4 after fluxerr clipping" << endl;
-
-  delete refD4f; delete refD4;
-  
-    
-    
-    
-  goodzfilter.push_back(Filter("flag_photoz",0,3));
-  goodzfilter.push_back(Filter("MASK",0,0));
-  goodzfilter.push_back(Filter("MASK_IR",0,0));
-  goodzfilter.push_back(Filter("MAG_AUTO",20,24.7)); // CODEX cut means no objects fainter than 24.7 will be used
-  goodzfilter.push_back(Filter("MAG_APER_"+bands[0]+aperture,-50,50));
-
-  ObjectCollection *goodref = ref->filter(goodzfilter);
-  
-  cerr << "# good reference objects: " << goodref->size() << endl;
-  
-  // correct AUTO magnitudes from aperture magnitudes
-  for(int i=0; i<refbands.size(); i++) {
-    goodref->transformColumnNew(refbands[i],mag_auto,"MAG_APER_"+refbands[i]+aperture,"MAG_AUTO","MAG_APER_"+bands[0]+aperture);
-    goodref->prototype->doublePropertyName[goodref->prototype->doubleVkey("MAGERR_APER_"+refbands[i]+aperture)]=refbands[i]+"err"; 
-  }
-  
-  for(int i=1; i<bands.size(); i++)
-  {
-    goodref->transformColumnNew(bands[i]+bands[0],mags_to_color,bands[i],bands[0]);
-  }
-  
-  return goodref;
-}  
-
-
 void assign_cluster_slice(ObjectCollection *refcat, double dzcluster, double dzwidth=0.06) 
 {
    zlens=dzcluster; zwidth=dzwidth;
@@ -619,7 +393,7 @@ void growTree(ObjectCollection *refcat, const vector<string> &criteria, const ve
 
   // stop if below size limit
   if(refcat->size()<2*nmin) {
-     //cerr << "cell with n=" << refcat->size() << " not populated enough to split, saving" << endl; 
+     cerr << "cell with n=" << refcat->size() << " not populated enough to split, saving" << endl; 
      Object *tmp = new Object(leaves->prototype);
      for(int i=0; i<criteria.size(); i++)
   	 {
@@ -629,6 +403,8 @@ void growTree(ObjectCollection *refcat, const vector<string> &criteria, const ve
   	 }
   	 leaves->appendObject(tmp);
   	 return;
+  } else {
+     cerr << "cell with n=" << refcat->size() << " not populated enough, trying to split" << endl; 
   }
   
   ObjectCollection *tsmallmax=0;
@@ -653,13 +429,14 @@ void growTree(ObjectCollection *refcat, const vector<string> &criteria, const ve
      if((i==0 && med>detectionlimit[0]) || (i>0 && med+max[0]>detectionlimit[i]) ) 
      // don't split if any band is above detection limit at median split
      {
-       //cerr << "# band " << criteria[i] << " is above detection limit, not splitting" << endl;
+       cerr << "# band " << criteria[i] << " is above detection limit, not splitting" << endl;
        continue;
      }
      
      // split in two
      ObjectCollection *tsmall = refcat->filter(Filter(criteria[i],min[i],med));
      ObjectCollection *tlarge = refcat->filter(Filter(criteria[i],med,max[i]));
+     cerr << "# split by band " << criteria[i] << " gives two samples sized " << tsmall->size() << "," << tlarge->size() << endl;
      
      double asmall   = tsmall->average(target);
      double alarge   = tlarge->average(target);
@@ -677,21 +454,21 @@ void growTree(ObjectCollection *refcat, const vector<string> &criteria, const ve
   }
   
   if(snrmax>2.) {
-    //cerr << "found a significant difference when splitting by crit " << cmax << "=" << criteria[cmax] << "; branching" << endl;
+    cerr << "found a significant difference when splitting by crit " << cmax << "=" << criteria[cmax] << "; branching" << endl;
     double dmax=max[cmax];
     max[cmax]=medmax;
-    //cerr << "growing first branch at " << min[cmax] << "<" << criteria[cmax] << "<" << max[cmax] << endl;
+    cerr << "growing first branch at " << min[cmax] << "<" << criteria[cmax] << "<" << max[cmax] << endl;
     ObjectCollection *refcatlow = refcat->filter(Filter(criteria[cmax],min[cmax],max[cmax]));
     growTree(refcatlow, criteria, detectionlimit, minwidth, min, max, nmin, target, target2, leaves);
     delete refcatlow;
 
     max[cmax]=dmax; min[cmax]=medmax;
-    //cerr << "growing second branch at " << min[cmax] << "<" << criteria[cmax] << "<" << max[cmax] << endl;
+    cerr << "growing second branch at " << min[cmax] << "<" << criteria[cmax] << "<" << max[cmax] << endl;
     ObjectCollection *refcathigh = refcat->filter(Filter(criteria[cmax],min[cmax],max[cmax]));
     growTree(refcathigh, criteria, detectionlimit, minwidth, min, max, nmin, target, target2, leaves);
     delete refcathigh;
   } else {
-     //cerr << "difference insignificant; turning into leaf" << endl;
+     cerr << "difference insignificant; turning into leaf" << endl;
      Object *tmp = new Object(leaves->prototype);
      for(int i=0; i<criteria.size(); i++)
   	 {
