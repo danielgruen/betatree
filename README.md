@@ -68,6 +68,10 @@ For each leaf, a line with
 * `leafid`: running index as in previous table
 * `pofz`: array of normalized p(z) with elements i=1...400, where element i describes `z=i/100\pm0.005`
 
+## Help
+
+I would be happy to help you use this code and data correctly -- please contact me at dgruen@stanford.edu.
+
 ## Acknowledgements
 
 The method is described in detail in Gruen & Brimioulle (2017) and first applied in Cibirka et al. (2017). Publications making use of this code should also acknowledge the public CFHTLS-DEEP and WIRDS data and the Photoz code (Bender et al. 2001) and COSMOS photo-z (Laigle et al. 2015) used in the reference catalogs. Support for DG was provided by NASA through the Einstein Fellowship Program, grant PF5-160138.
