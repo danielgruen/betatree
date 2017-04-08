@@ -55,8 +55,15 @@ For each leaf, a line with
 * `leafid`: running index
 * `nobj`: number of objects in the CFHTLS-DEEP magnitude limited sample in leaf
 * `i_min/max`: i band range of leaf
-* `?i_min/max`: range of all colors used in this tree of leaf
+* `?i_min/max`: range of ?-i color of leaf
 * `beta`,`sigmabeta`: mean value and uncertainty of mean of `\beta` of all CFHTLS galaxies in leaf
- 
+* `DdsDs????_mean`: mean value of `\beta` *without* the noise bias correction described in arXiv:1610.01160
+* `DdsDssq????_mean`: mean value of `\beta^2`
+* `background???_mean`,`cluster????_mean`: probability of a galaxy in this leaf to be in the background `z>1.06*(1+z_l)` / in the cluster redshift slice `|z-z_l|<0.06*(1+z_l)`
+* `beta_noD[1234]`: mean `\beta` estimated without DEEP field 1/2/3/4, useful for generating cosmic variance metric with jackknife
 
 ### p(z)
+
+For each leaf, a line with
+* `leafid`: running index as in previous table
+* `pofz`: array of normalized p(z) with elements i=1...400, where element i describes `z=i/100\pm0.005`
