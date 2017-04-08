@@ -67,9 +67,8 @@ void leafBin(Object *leaf, ObjectCollection *pop, vector<string> criteria,
      }
      vf.push_back(Filter(property,pmin,pmax));
      ObjectCollection *tmp = pop->filter(vf);    
-
      double relweight = totalweight/tmp->size();
-     
+    
      for(int j=0; j<tmp->size(); j++)
      {
        double t = (*tmp)[j]->doublePropertyValue(property);
@@ -178,45 +177,45 @@ int main(int argc, char **argv)
   
   // (7) estimating photo-z uncertainty from comparison of D2 with C2015
   //     only if maxdepth <= 24.7
-if(maxdepth<=24.7) {
-  cerr << "# (3b) estimating photo-z uncertainty from comparison of D2 with C2015" << endl;
-  
-  vector<string> extracol; 
-  extracol.push_back("z_phot_C2015"); 
-  extracol.push_back("DdsDs_D2_"+ZeroPadNumber(iz));
-  extracol.push_back("DdsDs_C2015_"+ZeroPadNumber(iz));
-  extracol.push_back("DdsDssq_D2_"+ZeroPadNumber(iz));
-  extracol.push_back("DdsDssq_C2015_"+ZeroPadNumber(iz));
-  ObjectCollection *refC2015 = read_refcat_prepared(bands, ZeroPadNumber(iz), extracol, "D.C2015.i.cat");
-  
-  if(refC2015->prototype->doubleVkey("DdsDs_D2_"+ZeroPadNumber(iz))<0) { // create beta-columns if missing
-    string zstring[] = {ZeroPadNumber(iz)};
-    assign_DdsDs(refC2015, vector<double>(1,zcluster), zstring, "z_phot", "_D2_");
-  }  
-  if(refC2015->prototype->doubleVkey("DdsDs_C2015_"+ZeroPadNumber(iz))<0) { // create beta-columns if missing
-    string zstring[] = {ZeroPadNumber(iz)};
-    assign_DdsDs(refC2015, vector<double>(1,zcluster), zstring, "z_phot_C2015", "_C2015_");
+  if(maxdepth<=24.7) {
+  	cerr << "# (3b) estimating photo-z uncertainty from comparison of D2 with C2015" << endl;
+  	
+  	vector<string> extracol; 
+  	extracol.push_back("z_phot_C2015"); 
+  	extracol.push_back("DdsDs_D2_"+ZeroPadNumber(iz));
+  	extracol.push_back("DdsDs_C2015_"+ZeroPadNumber(iz));
+  	extracol.push_back("DdsDssq_D2_"+ZeroPadNumber(iz));
+  	extracol.push_back("DdsDssq_C2015_"+ZeroPadNumber(iz));
+  	ObjectCollection *refC2015 = read_refcat_prepared(bands, ZeroPadNumber(iz), extracol, "D.C2015.i.cat");
+  	
+  	if(refC2015->prototype->doubleVkey("DdsDs_D2_"+ZeroPadNumber(iz))<0) { // create beta-columns if missing
+  	  string zstring[] = {ZeroPadNumber(iz)};
+  	  assign_DdsDs(refC2015, vector<double>(1,zcluster), zstring, "z_phot", "_D2_");
+  	}  
+  	if(refC2015->prototype->doubleVkey("DdsDs_C2015_"+ZeroPadNumber(iz))<0) { // create beta-columns if missing
+  	  string zstring[] = {ZeroPadNumber(iz)};
+  	  assign_DdsDs(refC2015, vector<double>(1,zcluster), zstring, "z_phot_C2015", "_C2015_");
+  	}
+  	
+  	ObjectCollection *tC2015_C2015  = new ObjectCollection(t->prototype);
+  	ObjectCollection *tC2015_D2  = new ObjectCollection(t->prototype);
+  	tC2015_C2015->appendCollectionDeep(t);
+  	tC2015_D2->appendCollectionDeep(t);
+  	refC2015->treeAverage(tC2015_C2015,criteria,"DdsDs_C2015_"+ZeroPadNumber(iz));
+  	refC2015->treeAverage(tC2015_D2,criteria,"DdsDs_D2_"+ZeroPadNumber(iz));
+  	refC2015->treeAverage(tC2015_C2015,criteria,"DdsDssq_C2015_"+ZeroPadNumber(iz));
+  	refC2015->treeAverage(tC2015_D2,criteria,"DdsDssq_D2_"+ZeroPadNumber(iz));
+  	
+  	tC2015_C2015->transformColumnNew("DdsDs_C2015_"+ZeroPadNumber(iz)+"_mean_uncertainty",mean_uncertainty,
+  	                            "DdsDs_C2015_"+ZeroPadNumber(iz)+"_mean","DdsDssq_C2015_"+ZeroPadNumber(iz)+"_mean","nobj");
+  	tC2015_D2->transformColumnNew("DdsDs_D2_"+ZeroPadNumber(iz)+"_mean_uncertainty",mean_uncertainty,
+  	                            "DdsDs_D2_"+ZeroPadNumber(iz)+"_mean","DdsDssq_D2_"+ZeroPadNumber(iz)+"_mean","nobj");
+	
+  	t->extendCollection(*tC2015_C2015,"DdsDs_C2015_"+ZeroPadNumber(iz)+"_mean","DdsDs"+ZeroPadNumber(iz)+"_mean_C2015");
+  	t->extendCollection(*tC2015_C2015,"DdsDs_C2015_"+ZeroPadNumber(iz)+"_mean_uncertainty","DdsDs"+ZeroPadNumber(iz)+"_mean_uncertainty_C2015");
+  	t->extendCollection(*tC2015_D2,"DdsDs_D2_"+ZeroPadNumber(iz)+"_mean","DdsDs"+ZeroPadNumber(iz)+"_mean_D2");
+  	t->extendCollection(*tC2015_D2,"DdsDs_D2_"+ZeroPadNumber(iz)+"_mean_uncertainty","DdsDs"+ZeroPadNumber(iz)+"_mean_uncertainty_D2");
   }
-  
-  ObjectCollection *tC2015_C2015  = new ObjectCollection(t->prototype);
-  ObjectCollection *tC2015_D2  = new ObjectCollection(t->prototype);
-  tC2015_C2015->appendCollectionDeep(t);
-  tC2015_D2->appendCollectionDeep(t);
-  refC2015->treeAverage(tC2015_C2015,criteria,"DdsDs_C2015_"+ZeroPadNumber(iz));
-  refC2015->treeAverage(tC2015_D2,criteria,"DdsDs_D2_"+ZeroPadNumber(iz));
-  refC2015->treeAverage(tC2015_C2015,criteria,"DdsDssq_C2015_"+ZeroPadNumber(iz));
-  refC2015->treeAverage(tC2015_D2,criteria,"DdsDssq_D2_"+ZeroPadNumber(iz));
-  
-  tC2015_C2015->transformColumnNew("DdsDs_C2015_"+ZeroPadNumber(iz)+"_mean_uncertainty",mean_uncertainty,
-                              "DdsDs_C2015_"+ZeroPadNumber(iz)+"_mean","DdsDssq_C2015_"+ZeroPadNumber(iz)+"_mean","nobj");
-  tC2015_D2->transformColumnNew("DdsDs_D2_"+ZeroPadNumber(iz)+"_mean_uncertainty",mean_uncertainty,
-                              "DdsDs_D2_"+ZeroPadNumber(iz)+"_mean","DdsDssq_D2_"+ZeroPadNumber(iz)+"_mean","nobj");
-
-  t->extendCollection(*tC2015_C2015,"DdsDs_C2015_"+ZeroPadNumber(iz)+"_mean","DdsDs"+ZeroPadNumber(iz)+"_mean_C2015");
-  t->extendCollection(*tC2015_C2015,"DdsDs_C2015_"+ZeroPadNumber(iz)+"_mean_uncertainty","DdsDs"+ZeroPadNumber(iz)+"_mean_uncertainty_C2015");
-  t->extendCollection(*tC2015_D2,"DdsDs_D2_"+ZeroPadNumber(iz)+"_mean","DdsDs"+ZeroPadNumber(iz)+"_mean_D2");
-  t->extendCollection(*tC2015_D2,"DdsDs_D2_"+ZeroPadNumber(iz)+"_mean_uncertainty","DdsDs"+ZeroPadNumber(iz)+"_mean_uncertainty_D2");
-}
 
   // (4) estimating cosmic variance on weighted mean beta
   cerr << "# (4) estimating cosmic variance" << endl;
@@ -328,7 +327,9 @@ if(maxdepth<=24.7) {
   const int npzbins=400;
   const double dpz=(pzmax-pzmin)/npzbins; // 0.01
   double *pz = new double[npzbins];
-  for(int j=0; j<npzbins; j++) pz[j]=0.;
+  
+  valarray<double> pofz(npzbins*t->size());
+  for(int i=0; i<npzbins*t->size(); i++) pofz[i]=0.;
   
   for(int i=0; i<t->size(); i++)
   {    
@@ -344,9 +345,16 @@ if(maxdepth<=24.7) {
       double beta = (*t)[i]->doublePropertyValue("DdsDs"+ZeroPadNumber(iz)+"_mean");
       betamean_DEEP  += nobj*beta;
       nsum += nobj;
-  
-      leafBin((*t)[i], ref, criteria, "z_phot", pzmin, pzmax, dpz, pz, nobj*beta);
+      
+      for(int j=0; j<npzbins; j++) pz[j]=0.;
+      
+      leafBin((*t)[i], ref, criteria, "z_phot", pzmin, pzmax, dpz, pz, 1./dpz);
+      
+      for(int j=0; j<npzbins; j++) {
+        pofz[i*npzbins+j]=pz[j];
+      }
   }
+  
   
   betamean_C2015 /= nsum;
   betamean_D2 /= nsum;
@@ -354,10 +362,34 @@ if(maxdepth<=24.7) {
   fields->createDoublePropertyIfNecessary("BETATREE_BETAMEAN_C2015",betamean_C2015,true);
   fields->createDoublePropertyIfNecessary("BETATREE_BETAMEAN_D2",betamean_D2,true);
   fields->createDoublePropertyIfNecessary("BETATREE_BETAMEAN_DEEP",betamean_DEEP,true); 
+  fields->createDoublePropertyIfNecessary("BETATREE_POFZ_FIRSTBIN_ZMIN",pzmin,true);  
+  fields->createDoublePropertyIfNecessary("BETATREE_POFZ_FIRSTBIN_ZMAX",pzmin+dpz,true);
+  fields->createDoublePropertyIfNecessary("BETATREE_POFZ_NBINS",npzbins,true); 
   
   fields->writeToFITS(outputfile, fields->prototype->doublePropertyName, fields->prototype->intPropertyName, "TREE");
   t->writeToFITS(outputfile, t->prototype->doublePropertyName, t->prototype->intPropertyName, "LEAVES");
-
+  
+  auto_ptr<FITS> pFits(0);
+    
+  try
+  {    
+      pFits.reset( new FITS(outputfile,Write) );
+  }
+  catch (CCfits::FITS::CantOpen)
+  {
+      cerr << "cannot open" << outputfile << " for writing!" << endl;
+      return 1;       
+  }
+  
+  vector<string> colName(2,""); colName[0]="leafid"; colName[1]="pofz";
+  vector<string> colForm(2,""); colForm[0]="1J"; colForm[1]=FilterFunctions::NumberToString(npzbins)+"D";
+  vector<string> colUnit(2,"");
+  Table* newTable = pFits->addTable("POFZ_LEAVES",t->size(),colName,colForm,colUnit);
+  
+  vector<int> leafid(t->size());
+  for(int i=0; i<t->size(); i++) leafid[i]=i;
+  newTable->column(colName[0]).write(leafid,1);
+  newTable->column(colName[1]).write(pofz,t->size(),1);
   
   return 0;
 }
