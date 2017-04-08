@@ -304,6 +304,7 @@ int main(int argc, char **argv)
   fields->createIntPropertyIfNecessary("BETATREE_VERSION",3,true);
   fields->createIntPropertyIfNecessary("BETATREE_NMIN",nmin,true);
   fields->createIntPropertyIfNecessary("BETATREE_NLEAVES",t->size(),true);
+  fields->createDoublePropertyIfNecessary("BETATREE_BRIGHTCUT",brightcut,true);
   fields->createDoublePropertyIfNecessary("BETATREE_MAXDEPTH",maxdepth,true);
   fields->createDoublePropertyIfNecessary("BETATREE_RELATIVE_COSMIC_STDEV",sigmabeta,true);
   fields->createDoublePropertyIfNecessary("BETATREE_Z_LENS",zcluster,true);
