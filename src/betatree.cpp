@@ -91,6 +91,7 @@ int main(int argc, char **argv)
 
   double zcluster = atof(argv[1]);
   assert(zcluster>0); assert(zcluster<1);
+  int iz = int(zcluster*10000.+0.1);
  
   string outputfile=argv[2];
   double maxdepth=atof(argv[3]);
