@@ -1,4 +1,5 @@
 // betatree: build tree in color-magnitude space with variable bands
+// mice variant that does not do cosmic variance and stuff like that
 
 #include <iostream>
 using namespace std;
@@ -87,11 +88,9 @@ int main(int argc, char **argv)
 
   const string detectionband = "i";
   const int nfilters = (argc-4)/2;
-  const string aperture = "2";
 
   double zcluster = atof(argv[1]);
   assert(zcluster>0); assert(zcluster<1);
-  int iz = int(zcluster*10000.+0.1);
  
   string outputfile=argv[2];
   double maxdepth=atof(argv[3]);
@@ -150,6 +149,7 @@ int main(int argc, char **argv)
     else
       criteria.push_back(filters[i]+filters[0]);
 
+    cout << "filter " << i+1 << ": " << filters[i] << endl;
   }
   ObjectCollection *ref    = read_refcat_prepared(bands, ZeroPadNumber(iz));
   ref = ref->filter(Filter(filters[0],brightcut,maxdepth));
