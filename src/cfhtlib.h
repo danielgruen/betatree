@@ -95,6 +95,34 @@ double DdsDs(double zs) {
 
 // methods you would actually want to use
 
+ObjectCollection* read_refcat_mice(vector<string> bands, 
+                                       string zstring, 
+                                       string filename) {
+
+  srand (time(NULL));
+
+  vector<string> photozcolumns;
+  photozcolumns.push_back(zstring);
+  for(int i=0; i<bands.size(); i++)
+  {
+    if(i==0)
+      photozcolumns.push_back(bands[i]);
+    else
+      photozcolumns.push_back(bands[i]+bands[0]);
+  }
+  
+  //for(int i=0; i<extracolumns.size(); i++)
+  //{
+  //  photozcolumns.push_back(extracolumns[i]);
+  //}
+  
+  ObjectCollection *ref;
+  ref = new ObjectCollection(filename,1,photozcolumns);
+  
+  return ref;
+}
+
+
 ObjectCollection* read_refcat_prepared(vector<string> bands, 
                                        string zstring, 
                                        vector<string> extracolumns=vector<string>(0), 

@@ -1,16 +1,19 @@
 # if you have an open-mp enabled compiler
-CPP=g++ -fopenmp -DXOC
+#CPP=g++ -fopenmp -DXOC
 # if you don't
-#CPP=g++ -DNO_THREADS -g
+CPP=g++ -DNO_THREADS -g
 REFCATPATH=$(shell pwd)/refcat/
 
 LIBS=-lCCfits -L/home/rigel/dgruen/werc3/lib -I/home/rigel/dgruen/werc3/include
 
-all: betatree referencecats
+all: betatree betatree_mice referencecats
 
 
 betatree: src/betatree.cpp src/filter.cpp src/filter.h src/cfhtlib.h
 	$(CPP) $(LIBS) -DREFCATPATH=\"$(REFCATPATH)\" -o betatree src/betatree.cpp src/filter.cpp
+
+betatree_mice: src/betatree_mice.cpp src/filter.cpp src/filter.h src/cfhtlib.h
+	$(CPP) $(LIBS) -DREFCATPATH=\"$(REFCATPATH)\" -o betatree_mice src/betatree_mice.cpp src/filter.cpp
 
 
 referencecats:
