@@ -119,11 +119,11 @@ int main(int argc, char **argv)
 
     cout << "criterion " << i+1 << ": " << criteria[i] << endl;
   }
-  ObjectCollection *ref    = read_refcat_mice(bands, "z_phot", referencecat);
+  ObjectCollection *ref    = read_refcat_mice(bands, "redshift", referencecat);
   ref = ref->filter(Filter(filters[0],brightcut,maxdepth));
 
   string zstring[] = {""};
-  assign_DdsDs(ref, vector<double>(1,zcluster), zstring, "z_phot", "");
+  assign_DdsDs(ref, vector<double>(1,zcluster), zstring, "redshift", "");
   
   // (4) build tree
   cerr << "# (2) building tree" << endl;
@@ -184,7 +184,7 @@ int main(int argc, char **argv)
       
       for(int j=0; j<npzbins; j++) pz[j]=0.;
       
-      leafBin((*t)[i], ref, criteria, "z_phot", pzmin, pzmax, dpz, pz, 1./dpz);
+      leafBin((*t)[i], ref, criteria, "redshift", pzmin, pzmax, dpz, pz, 1./dpz);
       
       for(int j=0; j<npzbins; j++) {
         pofz[i*npzbins+j]=pz[j];
