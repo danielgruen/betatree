@@ -87,7 +87,8 @@ int main(int argc, char **argv)
   }
 
   const string detectionband = "i";
-  const int nfilters = (argc-4)/2;
+  const int nfilters = (argc-4)/2+1;
+  const string aperture = "2";
 
   double zcluster = atof(argv[1]);
   assert(zcluster>0); assert(zcluster<1);
@@ -98,7 +99,7 @@ int main(int argc, char **argv)
   assert(maxdepth>brightcut);
   assert(maxdepth<=25);
   
-  string filters[(argc-4)/2+1];
+  string filters[nfilters];
   filters[0]=detectionband;
   vector<double> limits;
   limits.push_back(maxdepth); // limit of detection band
@@ -150,7 +151,7 @@ int main(int argc, char **argv)
     else
       criteria.push_back(filters[i]+filters[0]);
 
-    cout << "filter " << i+1 << ": " << filters[i] << endl;
+    cout << "criterion " << i+1 << ": " << criteria[i] << endl;
   }
   ObjectCollection *ref    = read_refcat_prepared(bands, ZeroPadNumber(iz));
   ref = ref->filter(Filter(filters[0],brightcut,maxdepth));

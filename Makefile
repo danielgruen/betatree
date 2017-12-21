@@ -1,10 +1,10 @@
 # if you have an open-mp enabled compiler
-CPP=g++ -fopenmp
+CPP=g++ -fopenmp -DXOC
 # if you don't
-CPP=g++ -DNO_THREADS -g
+#CPP=g++ -DNO_THREADS -g
 REFCATPATH=$(shell pwd)/refcat/
 
-LIBS=-lCCfits
+LIBS=-lCCfits -L/home/rigel/dgruen/werc3/lib -I/home/rigel/dgruen/werc3/include
 
 all: betatree referencecats
 
