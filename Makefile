@@ -4,7 +4,7 @@ CPP=g++ -fopenmp -DXOC
 #CPP=g++ -DNO_THREADS -g
 REFCATPATH=$(shell pwd)/refcat/
 
-LIBS=-lCCfits -L/home/rigel/dgruen/werc3/lib -I/home/rigel/dgruen/werc3/include
+LIBS=-lCCfits -L/home/rigel/dgruen/werc3/lib -I/home/rigel/dgruen/werc3/include -L/u/ki/dgruen/lib -I/u/ki/dgruen/include
 
 all: betatree referencecats
 
