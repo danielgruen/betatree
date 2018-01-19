@@ -1,5 +1,8 @@
 // cfhtlib.h: code snippets for reading CFHT reference catalogs
 
+#ifndef _CFHTLIB_
+#define _CFHTLIB_
+
 #include <cmath>
 #include <cassert>
 #include <time.h>
@@ -352,3 +355,5 @@ ObjectCollection* tree(ObjectCollection *refcat, const vector<string> &criteria,
 
 
 };
+
+#endif

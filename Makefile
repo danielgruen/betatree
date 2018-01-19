@@ -1,5 +1,5 @@
 # if you have an open-mp enabled compiler
-CPP=g++ -fopenmp -DXOC
+CPP=g++  -fopenmp
 # if you don't
 #CPP=g++ -DNO_THREADS -g
 REFCATPATH=$(shell pwd)/refcat/
@@ -12,6 +12,8 @@ all: betatree referencecats
 betatree: src/betatree.cpp src/filter.cpp src/filter.h src/cfhtlib.h
 	$(CPP) $(LIBS) -DREFCATPATH=\"$(REFCATPATH)\" -o betatree src/betatree.cpp src/filter.cpp
 
+betatree_buzzard: src/betatree_buzzard.cpp src/filter.cpp src/filter.h src/cfhtlib.h
+	$(CPP) $(LIBS) -DREFCATPATH=\"\" -o betatree_buzzard src/betatree_buzzard.cpp src/filter.cpp
 
 referencecats:
 	mkdir -p refcat

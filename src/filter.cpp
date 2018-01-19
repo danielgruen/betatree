@@ -321,16 +321,16 @@ double pow2_filter(double x)
 	  (*iter).second->read(intcolumns.back(),1,table.rows());
 	} catch (...) {
 	  cout << "# caught an error reading int column, maybe it's an array column" << endl; 
-	  /*
+	  
 	  vector<valarray<int> > vals; // vector of array cells
 	  (*iter).second->readArrays(vals,1,table.rows());
-	  vector<int> v1 = new vector<int>[vals[0].size()-1];
+	  vector<vector<int> > v1; v1.resize(vals[0].size()-1);
 	  for (int i=0; i<vals.size(); i++)
 	  {
 	    (intcolumns.back()).push_back(vals[i][0]);
 	    for(int j=0; j<vals[0].size()-1; j++)
 	    {
-	    (*v1)[j].push_back(vals[i][j+1]); 
+	      v1[j].push_back(vals[i][j+1]); 
 	    }
 	  }
 	  string number[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" };
@@ -340,12 +340,12 @@ double pow2_filter(double x)
 	  for(int j=0; j<vals[0].size()-1; j++)
 	  {
 		prototype->intVkey(prefix+(*iter).first+number[j],true);
-		intcolumns.push_back((*v1)[j]);
+		intcolumns.push_back(v1[j]);
 		cerr << "# reading column " << (*iter).first+number[j] << endl;
-		cerr << "# size: " << (*v1)[j].size() << endl;
+		cerr << "# size: " << v1[j].size() << endl;
 		extracolumns++;
 	  }
-	  */
+	  
 	}
       }
 	break;	
@@ -359,7 +359,7 @@ double pow2_filter(double x)
 	  (*iter).second->read(doublecolumns.back(),1,table.rows());
 	} catch (...) {
 	  cout << "# caught an error reading double column, maybe it's an array column" << endl; 
-	  /*
+	  
 	  vector<valarray<double> > vals; // vector of array cells
 	  (*iter).second->readArrays(vals,1,table.rows());
 	  vector<double> (*v1)[vals[0].size()-1];
@@ -382,7 +382,7 @@ double pow2_filter(double x)
 		cerr << "# reading column " << (*iter).first+number[j] << endl;
 		extracolumns++;
 	  }
-	  */
+	  
 	}
       }
 	break;	
@@ -460,7 +460,7 @@ double pow2_filter(double x)
 	  (*iter).second->read(intcolumns.back(),1,table.rows());
 	} catch (...) {
 	  cout << "# caught an error reading int column, maybe it's an array column" << endl; 
-	  /*
+	  
 	  vector<valarray<int> > vals; // vector of array cells
 	  (*iter).second->readArrays(vals,1,table.rows());
 	  vector<int> v1[vals[0].size()-1];
@@ -484,7 +484,7 @@ double pow2_filter(double x)
 		cerr << "# size: " << v1[j].size() << endl;
 		extracolumns++;
 	  }
-	  */
+	  
 	}
       }
 	break;	
@@ -498,7 +498,7 @@ double pow2_filter(double x)
 	(*iter).second->read(doublecolumns.back(),1,table.rows());
 	} catch (...) {
 	  cout << "# caught an error reading double column, maybe it's an array column" << endl; 
-	  /*
+	  
 	  vector<valarray<double> > vals; // vector of array cells
 	  (*iter).second->readArrays(vals,1,table.rows());
 	  vector<double> v1[vals[0].size()-1];
@@ -521,7 +521,7 @@ double pow2_filter(double x)
 		cerr << "# reading column " << (*iter).first+number[j] << endl;
 		extracolumns++;
 	  }
-	  */
+	  
 	}
       }
 	break;	
